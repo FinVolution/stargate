@@ -1,0 +1,49 @@
+# maven ignore
+target/
+*.jar
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+logs/
+*.docpom.xml
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Store
+Thumbs.db
+
+*.class
+
+# front project
+gate-front/dist/
+gate-front/node_modules/
+gate-front/.idea
+gate-front/*.iws
+gate-front/*.iml
+gate-front/*.ipr
+gate-front/package-lock.json
+
+# backend server project
+gate-server/.idea
+gate-server/target/
+gate-server/.settings/
+gate-server/.project
+gate-server/.classpath

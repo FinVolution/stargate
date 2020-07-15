@@ -1,0 +1,113 @@
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0px;
+}
+
+#app {
+    height: 100%;
+}
+
+.content-panel {
+    padding: 20px;
+}
+
+.login-wrapper .login-fail-img {
+    background: url("./img/fail_login.jpg");
+}
+
+.query-form, .detail-form {
+    margin: 20px 0 0;
+}
+
+.query-box {
+    width: 217px;
+    margin-right: 40px;
+}
+
+.detail-box {
+    display: inline-flex;
+    font-size: 14px;
+    margin-right: 40px;
+}
+
+.detail-box-left {
+    border: 1px solid #dcdfe6;
+    border-right: 0;
+    border-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    box-sizing: border-box;
+    background-color: #f5f7fa;
+    color: #909399;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 10px;
+}
+
+.detail-box-right {
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+}
+
+.detail-box input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.table-expand {
+    font-size: 0;
+}
+
+.table-expand label {
+    color: #99a9bf;
+    margin-right: 20px;
+}
+
+.table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 25%;
+}
+
+.table-expand-datamap div {
+    line-height: 40px;
+    color: #99a9bf;
+}
+
+.table-expand-datamap span {
+    word-break: break-all;
+}
+
+.table-expand-datamap .vue-json-pretty div {
+    line-height: normal;
+}
+
+.release-log, .container-log, .command-log {
+    overflow-y: scroll;
+    height: 770px;
+    word-break: break-all;
+    white-space: pre-wrap;
+    color: forestgreen ;
+    background: #222;
+}
+
+.log-dialog .el-dialog__body {
+    padding: 0 20px 20px;
+}
+
+.el-table .el-button+.el-button {
+    margin-left: auto;
+}

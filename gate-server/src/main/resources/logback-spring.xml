@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <jmxConfigurator/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <!--<pattern>%date [%thread] %-5level %logger{36}- %msg%n</pattern>-->
+        </layout>
+    </appender>
+
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>
+                    if (mdc == null || mdc.get("GroupJob") == null || mdc.get("GroupJob").equals("unknown"))
+                        return false;
+
+                    return true;
+                </expression>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>NEUTRAL</OnMatch>
+        </filter>
+        <discriminator>
+            <key>GroupJob</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${GroupJob}" class="ch.qos.logback.core.FileAppender">
+                <file>${tasklog}/${GroupJob}.log</file>
+                <append>false</append>
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+                </layout>
+            </appender>
+        </sift>
+    </appender>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="SIFT" />
+    </root>
+
+</configuration>
