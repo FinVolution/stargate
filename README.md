@@ -11,3 +11,7 @@ stargate是一个基于Kubernetes和Docker的应用发布平台。支持应用�
 ## 平台演示
 
 演示地址: http://stargate.icu
+
+## 架构设计
+
+<img src="https://stargate-1302550287.cos.ap-shanghai.myqcloud.com/stargate_5.png">
