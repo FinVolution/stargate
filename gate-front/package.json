@@ -8,8 +8,7 @@
     "build": "webpack -p --progress --hide-modules"
   },
   "repository": {
-    "type": "git",
-    //"url": ""
+    "type": "git"
   },
   "keywords": [
     "release",
@@ -24,7 +23,7 @@
     "element-ui": "2.4.4",
     "identicon.js": "^2.3.3",
     "jquery": "^3.3.1",
-    "pauth-vue-support": "git+http://github.com/pauth-vue-support.git#1.1.3",
+    "pauth-vue-support": "git+http://github.com/ppdaicorp/pauth-vue-support.git#1.1.3",
     "vue": "^2.5.16",
     "vue-json-pretty": "^1.4.1",
     "vue-lodash": "2.0.2",

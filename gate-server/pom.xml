@@ -161,13 +161,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- ppdai galaxy -->
-        <dependency>
-            <groupId>com.ppdai.framework.galaxy2</groupId>
-            <artifactId>galaxy-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
         <!-- ppdai dockeryard -->
         <dependency>
             <groupId>com.ppdai.dockeryard</groupId>
@@ -192,7 +185,7 @@
         <dependency>
             <groupId>com.ppdai.auth</groupId>
             <artifactId>pauth-spring-support</artifactId>
-            <version>1.2.6</version>
+            <version>1.2.8</version>
         </dependency>
 
         <!-- junit testcase -->
