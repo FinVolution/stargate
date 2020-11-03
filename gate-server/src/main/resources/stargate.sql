@@ -238,4 +238,4 @@ CREATE TABLE IF NOT EXISTS `dns` (
   `is_active` TINYINT(1) NOT NULL DEFAULT '1' COMMENT '逻辑删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='dns记录';
-CREATE UNIQUE_INDEX `uniq_name_envid` ON `dns`(`name`, `env_id`);
+CREATE UNIQUE INDEX `uniq_name_envid` ON `dns`(`name`, `env_id`);
