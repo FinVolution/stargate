@@ -66,12 +66,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.ppdai.infrastructure</groupId>
-            <artifactId>paas-apply-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>3.0.8</version>

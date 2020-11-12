@@ -1,7 +1,6 @@
 package com.ppdai.stargate.controller;
 
 import com.ppdai.atlas.client.model.ApplyDto;
-import com.ppdai.infrastructure.paas.apply.api.Apply;
 import com.ppdai.stargate.controller.response.MessageType;
 import com.ppdai.stargate.controller.response.Response;
 import com.ppdai.stargate.service.ApplyService;
