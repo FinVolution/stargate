@@ -18,8 +18,6 @@ import java.util.Arrays;
 @EnableSwagger2
 public class SwaggerConfiguration {
 
-    @Value("${com.ppdai.appId}")
-    private String appId;
     @Value("${spring.application.name}")
     private String serviceName;
     @Value("${info.app.version}")
@@ -29,8 +27,7 @@ public class SwaggerConfiguration {
         return new ApiInfoBuilder()
                 .title(serviceName)
                 .version(version)
-                .extensions(Arrays.asList(new StringVendorExtension("x-appId", appId),
-                        new StringVendorExtension("x-serviceName", serviceName)))
+                .extensions(Arrays.asList(new StringVendorExtension("x-serviceName", serviceName)))
                 .build();
     }
 

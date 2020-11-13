@@ -2,7 +2,6 @@ package com.ppdai.stargate.config;
 
 import com.ppdai.atlas.client.api.AppControllerApi;
 import com.ppdai.dockeryard.client.api.ImageControllerApi;
-import com.ppdai.dockeryard.client.api.OrganizationControllerApi;
 import com.ppdai.pauth.client.api.OAuth2EndpointApi;
 import com.ppdai.stargate.utils.TokenValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +27,6 @@ public class BeanConfig {
         ImageControllerApi imageControllerApi = new ImageControllerApi();
         imageControllerApi.getApiClient().setBasePath(dockeryardUrl);
         return imageControllerApi;
-    }
-
-    @Bean
-    public OrganizationControllerApi organizationControllerApi() {
-        OrganizationControllerApi organizationControllerApi = new OrganizationControllerApi();
-        organizationControllerApi.getApiClient().setBasePath(dockeryardUrl);
-        return organizationControllerApi;
     }
 
     @Bean

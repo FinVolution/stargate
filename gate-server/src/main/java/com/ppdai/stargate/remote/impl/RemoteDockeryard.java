@@ -3,7 +3,7 @@ package com.ppdai.stargate.remote.impl;
 import com.ppdai.dockeryard.client.ApiException;
 import com.ppdai.dockeryard.client.api.ImageControllerApi;
 import com.ppdai.dockeryard.client.model.ImageEntity;
-import com.ppdai.dockeryard.client.model.PageVOImageEntity;
+import com.ppdai.dockeryard.client.model.ImagePageVO;
 import com.ppdai.stargate.remote.RemoteDockerRepo;
 import com.ppdai.stargate.utils.ConvertUtil;
 import com.ppdai.stargate.vo.ImageVO;
@@ -28,7 +28,7 @@ public class RemoteDockeryard implements RemoteDockerRepo {
     public PageVO<ImageVO> getImagesByPage(String orgName, String appName, Integer page, Integer size) {
         PageVO imagePageVO = new PageVO();
 
-        PageVOImageEntity pageVO = new PageVOImageEntity();
+        ImagePageVO pageVO = new ImagePageVO();
         List<ImageEntity> imageList = null;
 
         try {
@@ -100,11 +100,11 @@ public class RemoteDockeryard implements RemoteDockerRepo {
         imageVO.setName(imageEntity.getRepoName() + ":" + imageEntity.getTag());
         imageVO.setVersion(imageEntity.getTag());
 
-        Long insertTime = new Long(imageEntity.getInsertTime());
+        Long insertTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
         Date createdAt = new Date(insertTime);
         imageVO.setCreatedAt(createdAt);
 
-        Long updateTime = new Long(imageEntity.getUpdateTime());
+        Long updateTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
         Date updatedAt = new Date(updateTime);
         imageVO.setUpdatedAt(updatedAt);
 
