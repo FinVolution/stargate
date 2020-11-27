@@ -18,6 +18,6 @@ stargate是一个基于Kubernetes和Docker的应用发布平台。支持应用�
 
 ## [快速开始](https://github.com/ppdaicorp/stargate/wiki/quickstart)
 
-## 扫码加入（备注： stargate）
+## 扫码加群讨论（备注： stargate）
 
 <img src="https://stargate-1302550287.cos.ap-shanghai.myqcloud.com/%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_16064573673453.png">
