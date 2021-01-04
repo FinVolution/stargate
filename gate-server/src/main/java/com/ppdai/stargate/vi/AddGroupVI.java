@@ -21,4 +21,8 @@ public class AddGroupVI {
     private String zone;
 
     private String staticResources;
+
+    private String hadoopConfig;
+
+    private String checkpoint;
 }

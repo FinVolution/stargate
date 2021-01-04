@@ -18,6 +18,12 @@ public enum OperatorType {
 	UP_INSTANCE("上线实例"),
 	DOWN_INSTANCE("下线实例"),
 	AUTO_UPDATE_INSTANCE("自动更新实例"),
+	DEPLOY_FLINKJOB("部署FlinkJob"),
+	STOP_FLINKJOB("停止FlinkJob"),
+	UPDATE_FLINKJOB("更新FlinkJob"),
+	DESTROY_FLINKJOB("销毁FlinkJob"),
+	RESTART_FLINKJOB("重启FlinkJob"),
+
 	EXEC_COMMAND("执行命令");
 
     String description;

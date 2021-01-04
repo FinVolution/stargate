@@ -100,12 +100,12 @@ public class RemoteDockeryard implements RemoteDockerRepo {
         imageVO.setName(imageEntity.getRepoName() + ":" + imageEntity.getTag());
         imageVO.setVersion(imageEntity.getTag());
 
-        Long insertTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
-        Date createdAt = new Date(insertTime);
+//        Long insertTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
+        Date createdAt = new Date(new Date().toInstant().toEpochMilli());
         imageVO.setCreatedAt(createdAt);
 
-        Long updateTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
-        Date updatedAt = new Date(updateTime);
+//        Long updateTime = new Long(imageEntity.getInsertTime().toInstant().toEpochMilli());
+        Date updatedAt = new Date(new Date().toInstant().toEpochMilli());
         imageVO.setUpdatedAt(updatedAt);
 
         return imageVO;
