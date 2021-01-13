@@ -59,7 +59,8 @@ const state = {
     appSetting: {},
     execCommandResult: {},
     dnsList: [],
-    dnsCount: 0
+    dnsCount: 0,
+    hadoopConfigs: []
 };
 
 // getters
@@ -78,6 +79,7 @@ const getters = {
     getImageList: state => state.imageList,
     getValuableImageList: state => state.valuableImageList,
     getImageCount: state => state.imageCount,
+    getHadoopConfigs: state => state.hadoopConfigs,
     getAuditLogList: state => state.auditLogList,
     getAuditLogCount: state => state.auditLogCount,
     getAppInstanceList: state => state.appInstanceList,
@@ -118,6 +120,28 @@ const getters = {
 
 // actions
 const actions = {
+
+    createHadoopConfig({dispatch}, data) {
+        api.gateService.createHadoopConfig(data.formData).then(function (resp) {
+            console.log("------");
+            console.log(resp);
+            dispatch('fetchHadoopConfigs', data.env);
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchHadoopConfigs({commit, dispatch}, data) {
+        api.gateService.getHadoopConfigsByEnv(data).then(function (resp) {
+            console.log(resp.data.details);
+            commit(types.REFRESH_HADOOPCONFIG_LIST, resp.data.details);
+            console.log("----====---=-=")
+        }.bind(this)).catch(function (err) {
+            console.log("error");
+            console.error(err);
+            // dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
 
     /**
      * 用户切换环境时，将状态保存到store和localStorage
@@ -1045,6 +1069,9 @@ const mutations = {
     },
     [types.REFRESH_CLOUD_INSTANCE_STATUS] (state, data) {
         state.cloudInstanceStatus = data;
+    },
+    [types.REFRESH_HADOOPCONFIG_LIST] (state, data) {
+        state.hadoopConfigs = data;
     },
     [types.REFRESH_CLOUD_INSTANCE_LOG] (state, data) {
         state.cloudInstanceLog = data;

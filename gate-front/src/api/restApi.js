@@ -2,6 +2,11 @@ import axios from 'axios'
 
 export default {
 
+    doPostRequestNonJson(url, data){
+        return axios.post(url, data)
+            .then((response) => Promise.resolve(response))
+    .catch((error) => Promise.reject(error))
+    },
     doGetRequest(url, data){
         return axios.get(url, {params: data})
             .then((response) => Promise.resolve(response))

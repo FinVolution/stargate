@@ -2,6 +2,25 @@ import restApi from '../restApi'
 
 export default {
 
+    getHadoopConfigsByEnv(request = {}) {
+        if (request.department === null || request.department === undefined) {
+            return restApi.doGetRequest( '/api/flink/hadoop/configs?env=' + request);
+        }
+        let url = '/api/flink/hadoop/configs?env=' + request.env + '&department='+request.department;
+        return restApi.doGetRequest(url);
+    },
+    createHadoopConfig(request = {}) {
+        let url = '/api/flink/hadoop/configs';
+        return restApi.doPostRequestNonJson(url,request);
+    },
+    updateHadoopConfig(request = {}) {
+        let url = '/api/flink/hadoop/configs?id='+request.id+'&savepoint='+request.savepoint+'&description='+request.description +'&department='+request.department;
+        return restApi.doPutRequest(url,request);
+    },
+    deleteHadoopById(request = {}) {
+        let url = '/api/flink/hadoop/configs?env=' + request.env+'&id=' + request.id;
+        return restApi.doDeleteRequest(url);
+    },
     getAppList(request = {}) {
         let url = '/api/apps';
         return restApi.doGetRequest(url);
