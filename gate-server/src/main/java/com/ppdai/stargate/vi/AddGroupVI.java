@@ -2,6 +2,8 @@ package com.ppdai.stargate.vi;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class AddGroupVI {
     private String env;
@@ -25,4 +27,6 @@ public class AddGroupVI {
     private String hadoopConfig;
 
     private String checkpoint;
+
+    private List<String> zones;
 }

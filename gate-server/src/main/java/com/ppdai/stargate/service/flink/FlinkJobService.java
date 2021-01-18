@@ -73,14 +73,17 @@ public class FlinkJobService {
         }
 
         Map<String, Object> data = Maps.newHashMap();
-        String token = pauthTokenUtil.getToken();
-        data.put("token", token);
+//        String token = pauthTokenUtil.getToken();
+        data.put("token", "stargate");
 
         JobInfo jobInfo = new JobInfo();
         jobInfo.setName(groupEntity.getName());
         jobInfo.setGroupId(groupId);
         jobInfo.setOperationType(operatorType);
         jobInfo.setDataMap(data);
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
         return jobManager.createJobWithTasks(jobInfo);
     }
 
@@ -111,6 +114,9 @@ public class FlinkJobService {
         jobInfo.setGroupId(flinkDeployRequest.getGroupId());
         jobInfo.setOperationType(operatorType);
         jobInfo.setDataMap(data);
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
 
         List<TaskInfo> taskList = jobInfo.getTaskInfos();
         int step = 1;
@@ -139,6 +145,9 @@ public class FlinkJobService {
         jobInfo.setGroupId(groupId);
         jobInfo.setOperationType(operatorType);
         jobInfo.setDataMap(data);
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
 
         List<TaskInfo> taskList = jobInfo.getTaskInfos();
         int step = 1;
@@ -160,6 +169,9 @@ public class FlinkJobService {
         jobInfo.setGroupId(groupEntity.getId());
         jobInfo.setOperationType(operatorType);
         jobInfo.setDataMap(data);
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
 
         List<TaskInfo> taskList = jobInfo.getTaskInfos();
         int step = 1;
@@ -183,13 +195,15 @@ public class FlinkJobService {
         data.put("instanceId", instanceEntity.getId());
 
         JobInfo jobInfo = new JobInfo();
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
         jobInfo.setName(groupEntity.getName());
         jobInfo.setGroupId(groupId);
         jobInfo.setOperationType(operatorType);
         jobInfo.setDataMap(data);
         List<TaskInfo> taskList = jobInfo.getTaskInfos();
         int step = 1;
-        taskList.add(new TaskInfo(step++, JobTaskTypeEnum.REMOVE_HC_ONE, instanceEntity.getId()));
         taskList.add(new TaskInfo(step++, JobTaskTypeEnum.STOP_FLINKJOB, instanceEntity.getId()));
         taskList.add(new TaskInfo(step++, JobTaskTypeEnum.DESTROY_FLINKJOB, instanceEntity.getId()));
         taskList.add(new TaskInfo(step++, JobTaskTypeEnum.removeGroup));
@@ -210,6 +224,9 @@ public class FlinkJobService {
         data.put("zone", "");
 
         JobInfo jobInfo = new JobInfo();
+        jobInfo.setAppId(groupEntity.getAppId());
+        jobInfo.setAppName(groupEntity.getAppName());
+        jobInfo.setEnv(groupEntity.getEnvironment());
         jobInfo.setName(groupEntity.getName());
         jobInfo.setGroupId(groupId);
         jobInfo.setOperationType(operatorType);

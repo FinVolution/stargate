@@ -22,6 +22,7 @@ import com.ppdai.stargate.service.flink.PhoenixClientService;
 import com.ppdai.stargate.service.flink.model.SessionClusterArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -45,12 +46,11 @@ public class DeployFlinkJobInK8sTaskHandler extends AbstractTaskHandler {
     @Autowired
     private InstanceService instanceService;
     @Autowired
-    private PhoenixClientService phoenixClientService;
-    @Autowired
     private FlinkService flinkService;
     @Autowired
     private ApplicationRepository applicationRepository;
-
+    @Value("${phoenix.url:http://10.11.127:8081}")
+    private String phoenixUrl;
 
     @Override
     public String getName() {
@@ -74,8 +74,7 @@ public class DeployFlinkJobInK8sTaskHandler extends AbstractTaskHandler {
 
         SessionClusterArgs sessionClusterArgs = applyFlinkJobArgs(jobInfo, instanceEntity);
         log.info("【flink job：deploy start02】开始向k8s部署FlinkJob: args={}", sessionClusterArgs);
-        String url = phoenixClientService.phoenixAddress(instanceEntity.getEnv(), instanceEntity.getZone());
-        String command = flinkCtrlService.createCluster(url,
+        String command = flinkCtrlService.createCluster(phoenixUrl,
                 sessionClusterArgs, instanceEntity.getEnv());
         log.info("【flink job：deploy end】command:{}", command);
         flinkService.getLogAndWriteAsync(sessionClusterArgs, taskInfo);

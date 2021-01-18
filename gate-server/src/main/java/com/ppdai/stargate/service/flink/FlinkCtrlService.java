@@ -23,11 +23,7 @@ public class FlinkCtrlService {
      */
     public String createCluster(String baseUrl, SessionClusterArgs sessionClusterArgs,
                                 String env) {
-        if (isPro(env)) {
-            return flinkCtrlClient.createCluster(baseUrl, sessionClusterArgs);
-        } else {
-            return flinkCtrlClient.createClusterByProxy(baseUrl, sessionClusterArgs);
-        }
+        return flinkCtrlClient.createCluster(baseUrl, sessionClusterArgs);
     }
 
     /**
@@ -37,11 +33,7 @@ public class FlinkCtrlService {
      * @return
      */
     public String start(String baseUrl, FlinkJobArgs flinkJobArgs, String env) {
-        if (isPro(env)) {
-            return flinkCtrlClient.start(baseUrl, flinkJobArgs);
-        } else {
-            return flinkCtrlClient.startByProxy(baseUrl, flinkJobArgs);
-        }
+        return flinkCtrlClient.start(baseUrl, flinkJobArgs);
     }
 
 
@@ -50,23 +42,14 @@ public class FlinkCtrlService {
      *
      * @param baseUrl
      * @param jobId
-     * @param clusterId
      * @return
      */
     public JobInfoResp getJobDetails(String baseUrl, String jobId, String env, BaseFlinkReq baseFlinkReq) {
-        if (isPro(env)) {
-            return flinkCtrlClient.getJobDetails(baseUrl, jobId, baseFlinkReq);
-        } else {
-            return flinkCtrlClient.getJobDetailsByProxy(baseUrl, jobId, baseFlinkReq);
-        }
+        return flinkCtrlClient.getJobDetails(baseUrl, jobId, baseFlinkReq);
     }
 
     public Map<String, String> getJobBaseInfo(String baseUrl, String env, BaseFlinkReq baseFlinkReq) {
-        if (isPro(env)) {
-            return flinkCtrlClient.getJobBaseInfo(baseUrl, baseFlinkReq);
-        } else {
-            return flinkCtrlClient.getJobBaseInfoByProxy(baseUrl, baseFlinkReq);
-        }
+        return flinkCtrlClient.getJobBaseInfo(baseUrl, baseFlinkReq);
     }
 
     private boolean isPro(String env) {
@@ -74,10 +57,6 @@ public class FlinkCtrlService {
     }
 
     public String cancelJob(String baseUrl, String env, SavepointTriggerReq savepointTrigger) {
-        if (isPro(env)) {
-            return flinkCtrlClient.cancelJob(baseUrl, savepointTrigger);
-        } else {
-            return flinkCtrlClient.cancelJobByProxy(baseUrl, savepointTrigger);
-        }
+        return flinkCtrlClient.cancelJob(baseUrl, savepointTrigger);
     }
 }

@@ -27,7 +27,6 @@ import com.ppdai.stargate.vi.FlinkJobVO;
 import com.ppdai.stargate.vo.ContainerLogVO;
 import com.ppdai.stargate.vo.DeployGroupInfoVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +44,6 @@ public class FlinkGroupController {
 
     @Autowired
     private FlinkJobGroupService flinkJobGroupService;
-
-    @Autowired
-    private ZoneService zoneService;
 
     @Autowired
     private InstanceService instanceService;
@@ -79,18 +75,11 @@ public class FlinkGroupController {
     /**
      * 基于flink1.11 application mode方式
      *
-     * @param siteId
      * @param group
      * @return
      */
     @RequestMapping(value = "/application", method = RequestMethod.POST)
-    public Response<String> createGroup(@RequestParam(value = "siteId", required = false) Long siteId,
-                                        @RequestBody AddGroupVI group) {
-
-        String zone = group.getZone();
-        if (StringUtils.isEmpty(zone)) {
-            throw BaseException.newException(MessageType.ERROR, "指定的部署区域 [zone] 不存在或为空。");
-        }
+    public Response<String> createGroup(@RequestBody AddGroupVI group) {
 
         // 检查配额
         Long groupId = null;
@@ -105,7 +94,6 @@ public class FlinkGroupController {
         }
 
         // 创建发布组，为下一步执行部署任务做准备
-        groupService.createGroup(group);
         log.info("<<startDeployGroup>> 开始添加发布组任务");
         MDC.put("Group", groupEntity.getName());
         StringBuilder errors = new StringBuilder();
@@ -115,10 +103,11 @@ public class FlinkGroupController {
         jsonObject.put("HADOOP_CLUSTER", group.getHadoopConfig());
         jsonObject.put("SESSION_CLUSTER_ID", groupEntity.getName().replace(".", "-"));
         jsonObject.put("INSTANCE_COUNT", group.getInstanceCount());
+        jsonObject.put("imageUrl",group.getReleaseTarget());
         String envVars = jsonObject.toJSONString();
 
         // 使用动态资源发布，无需传ip，按实例数均匀分配zone
-        List<String> zoneList = zoneService.getZoneListByInstanceCount(group.getEnv(), zone, 1, groupId);
+        List<String> zoneList = group.getZones();
         String instanceName = instanceService.formatInstanceName(groupEntity.getName(), 0);
         ApplicationEntity applicationEntity = appService.getAppByCmdbId(group.getAppId());
 
@@ -134,8 +123,8 @@ public class FlinkGroupController {
         deployInstanceRequest.setZone(zoneList.get(0));
         deployInstanceRequest.setNamespace(NamingUtil.formatNamespace(applicationEntity.getDepartmentCode()));
         deployInstanceRequest.setGroupId(groupEntity.getId());
+        DeployInstanceResponse deployInstanceResponse = cloudInstanceService.onlyAddInstance(deployInstanceRequest);
 
-        DeployInstanceResponse deployInstanceResponse = cloudInstanceService.deploy(deployInstanceRequest);
 
         if (deployInstanceResponse.getCode() == -1) {
             errors.append("[instance=").append(instanceName).append(",err=").append(deployInstanceResponse.getMsg()).append("]");

@@ -8,6 +8,7 @@ import com.ppdai.stargate.po.InstanceEntity;
 import com.ppdai.stargate.service.InstanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +17,8 @@ public class DestroyFlinkJobInK8sTaskHandler extends AbstractTaskHandler {
 
     @Autowired
     private InstanceService instanceService;
-
+    @Value("${phoenix.url:http://10.11.127:8081}")
+    private String phoenixUrl;
 
     @Override
     public String getName() {

@@ -6,7 +6,6 @@ import com.ppdai.stargate.client.K8sClient;
 import com.ppdai.stargate.controller.response.MessageType;
 import com.ppdai.stargate.exception.BaseException;
 import com.ppdai.stargate.job.task.TaskInfo;
-import com.ppdai.stargate.po.GroupEntity;
 import com.ppdai.stargate.po.InstanceEntity;
 import com.ppdai.stargate.remote.RemoteManager;
 import com.ppdai.stargate.service.GroupService;
@@ -18,7 +17,6 @@ import com.ppdai.stargate.service.flink.model.SessionClusterArgs;
 import com.ppdai.stargate.utils.Strings;
 import com.ppdai.stargate.vi.FlinkJobVO;
 import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.PodLogs;
 import io.kubernetes.client.apis.CoreV1Api;
@@ -28,6 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -60,6 +59,12 @@ public class FlinkService {
     @Autowired
     private PhoenixClientService phoenixClientService;
 
+    /**
+     * 控制服务地址
+     */
+    @Value("${phoenix.url:http://10.11.127:8081}")
+    private String phoenixUrl;
+
     protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(
             5, 5,
             5, TimeUnit.SECONDS,
@@ -70,8 +75,6 @@ public class FlinkService {
     public FlinkJobVO getFlinkJobStatusByGroupId(Long groupId) {
         FlinkJobVO flinkJobVO = new FlinkJobVO();
         flinkJobVO.setId(1);
-
-        GroupEntity groupEntity = groupService.getGroupById(groupId);
 
         List<InstanceEntity> instanceEntityList = instanceService.getInstancesByGroupId(groupId);
         if (CollectionUtils.isEmpty(instanceEntityList)) {
@@ -101,12 +104,11 @@ public class FlinkService {
         if (sessionClusterId != null && stop == null) {
             try {
                 String k8sRpc = remoteManager.getK8sMasterRpcUrl(crtlInstance.getEnv(), crtlInstance.getZone());
-                String url = phoenixClientService.phoenixAddress(crtlInstance.getEnv(), crtlInstance.getZone());
                 BaseFlinkReq baseFlinkReq = new BaseFlinkReq();
                 baseFlinkReq.setClusterId(sessionClusterId.toString());
                 baseFlinkReq.setK8sMasterUrl(k8sRpc);
                 baseFlinkReq.setNamespace(crtlInstance.getNamespace());
-                JobInfoResp jobInfoResp = flinkCtrlService.getJobDetails(url,
+                JobInfoResp jobInfoResp = flinkCtrlService.getJobDetails(phoenixUrl,
                         jobId.toString(), crtlInstance.getEnv(), baseFlinkReq);
                 if (jobInfoResp != null) {
                     flinkJobVO.setStatus(jobInfoResp.getStatus().equals(FlinkJobStatus.RUNNING) ? "RUNNING" : "NOTRUNNING");
@@ -156,14 +158,14 @@ public class FlinkService {
             baseFlinkReq.setLabels(labels);
             baseFlinkReq.setNamespace(instanceEntity.getNamespace());
             jobInfo = flinkCtrlService.getJobBaseInfo(url, instanceEntity.getEnv(), baseFlinkReq);
-            jsonObject.put("RESTART",false);
+            jsonObject.put("RESTART", false);
         } catch (Exception e) {
             log.error("【flink job：wait error】", e);
             throw e;
         }
 
-        jsonObject.put("JOB_ID",jobInfo.get("jobId"));
-        jsonObject.put("DASHBOARD_ADDRESS",jobInfo.get("dashboard"));
+        jsonObject.put("JOB_ID", jobInfo.get("jobId"));
+        jsonObject.put("DASHBOARD_ADDRESS", jobInfo.get("dashboard"));
         jsonObject.remove("STOP");
         instanceEntity.setEnvVars(jsonObject.toJSONString());
         instanceService.saveInstance(instanceEntity);

@@ -72,8 +72,6 @@
                     <el-button type="primary" @click="stopFlinkJob">停止</el-button>
                     <!--                    <el-button v-if="props.row.status !== 'RUNNING'" type="primary" disabled @click="stopFlinkJob">停止-->
                     <!--                    </el-button>-->
-                    <el-button type="primary" @click="onUpdateFlinkJob">更新</el-button>
-                    <el-button type="primary" @click="restartFlinkJob">重启</el-button>
                     <el-button type="primary" @click="displayContainerLog(props.row.instanceName)">日志</el-button>
                     <el-button v-if="props.row.status === 'RUNNING'" type="primary" @click="openDashboard(props.row)">
                         ui
@@ -239,7 +237,6 @@
 
 <script>
     import {mapGetters} from 'vuex'
-    import localStroageUtil from '../../utils/localStorageUtil'
 
     export default {
         data: function () {
@@ -340,12 +337,7 @@
                 }
 
                 if (this.currentGroup.environment != this.currentEnv) {
-                    localStroageUtil.saveEnvironment(this.currentGroup.environment);
                     this.$store.dispatch('refreshCurrentEnv', this.currentGroup.environment);
-                }
-
-                if (this.currentGroup.appId) {
-                    localStroageUtil.saveLastQueryAppId(this.currentGroup.appId);
                 }
             },
             jobStatus: function (newJobStatus) {
@@ -396,21 +388,6 @@
             let query = this.$route.query;
             this.querySiteId = query && query.siteId ? query.siteId : null;
             this.queryGroupId = query && query.groupId ? query.groupId : null;
-
-            // 若没有查询的siteId或groupId，则自动切换到上次访问的发布组
-            if (this.querySiteId == null || this.queryGroupId == null) {
-                let lastQuerySiteId = localStorage.getItem("last-query-site-id");
-                let lastQueryGroupId = localStorage.getItem("last-query-group-id");
-                if (lastQuerySiteId != null && lastQueryGroupId != null) {
-                    this.$router.push({path: '/flinkjobstatus?siteId=' + lastQuerySiteId + '&groupId=' + lastQueryGroupId});
-                    this.$message('自动为您切换到上次访问的发布组，id=' + lastQueryGroupId);
-                    this.querySiteId = lastQuerySiteId;
-                    this.queryGroupId = lastQueryGroupId;
-                }
-            } else {
-                localStorage.setItem("last-query-site-id", this.querySiteId);
-                localStorage.setItem("last-query-group-id", this.queryGroupId);
-            }
 
             if (this.queryGroupId != null) {
                 this.$store.dispatch('fetchGroupById', {groupId: this.queryGroupId});

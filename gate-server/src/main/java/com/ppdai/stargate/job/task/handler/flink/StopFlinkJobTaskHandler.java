@@ -20,6 +20,7 @@ import com.ppdai.stargate.service.flink.model.SavepointTriggerReq;
 import com.ppdai.stargate.utils.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import static com.ppdai.stargate.utils.Strings.toStringIfNotEmpty;
@@ -40,8 +41,9 @@ public class StopFlinkJobTaskHandler extends AbstractTaskHandler {
 
     @Autowired
     private HadoopConfigService hadoopConfigService;
-    @Autowired
-    private PhoenixClientService phoenixClientService;
+
+    @Value("${phoenix.url:http://10.11.127:8081}")
+    private String phoenixUrl;
 
     @Override
     public String getName() {
@@ -65,8 +67,7 @@ public class StopFlinkJobTaskHandler extends AbstractTaskHandler {
         }
         SavepointTriggerReq savepointTrigger = buildSavepoint(instanceEntity);
         log.info("【flink job：stop start02】开始停止FlinkJob: savepoint={}", savepointTrigger);
-        String url = phoenixClientService.phoenixAddress(instanceEntity.getEnv(), instanceEntity.getZone());
-        String savepointPath = flinkCtrlService.cancelJob(url, instanceEntity.getEnv(), savepointTrigger);
+        String savepointPath = flinkCtrlService.cancelJob(phoenixUrl, instanceEntity.getEnv(), savepointTrigger);
         String envVars = instanceEntity.getEnvVars();
         JSONObject jsonObject = JSONObject.parseObject(envVars);
         if (isNotBlank(savepointPath) && !"Acknowledge".equalsIgnoreCase(savepointPath)) {

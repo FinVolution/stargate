@@ -44,13 +44,26 @@
                             <el-form-item label="实例规格">
                                 <div class="release-group-item">{{group.instanceSpec}}</div>
                             </el-form-item>
-                            <el-form-item label="实例总数">
+<!--                            <el-form-item label="启动端口">-->
+<!--                                <div class="release-group-item">{{group.portCount}}</div>-->
+<!--                            </el-form-item>-->
+                            <el-form-item v-if="!isFlinkApp" label="实例总数">
                                 <div class="release-group-item">{{group.instanceCount}}</div>
                             </el-form-item>
-                            <el-form-item label="在线实例">
+                            <el-form-item v-if="isFlinkApp" label="任务总数">
+                                <div class="release-group-item">{{group.instanceCount}}</div>
+                            </el-form-item>
+                            <el-form-item  v-if="!isFlinkApp"  label="在线实例">
                                 <div class="release-group-item">{{group.activeCount}}</div>
                             </el-form-item>
-                            <el-form-item label="流量状态">
+                            <el-form-item v-if="isFlinkApp"  label="在线任务">
+                                <div class="release-group-item">{{group.activeCount}}</div>
+                            </el-form-item>
+                            <el-form-item v-if="!isFlinkApp" label="流量状态">
+                                <el-progress :text-inside="true" :stroke-width="40"
+                                             :percentage="group.instanceUpPercentage" status="success"></el-progress>
+                            </el-form-item>
+                            <el-form-item v-if="isFlinkApp" label="任务状态">
                                 <el-progress :text-inside="true" :stroke-width="40"
                                              :percentage="group.instanceUpPercentage" status="success"></el-progress>
                             </el-form-item>
@@ -58,7 +71,10 @@
 
                         <el-row :gutter="20">
                             <el-col :span="12">
-                                <router-link :to="{name: 'instancestatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
+                                <router-link v-if="!isFlinkApp" :to="{name: 'instancestatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
+                                    <el-button type="primary">实例操作</el-button>
+                                </router-link>
+                                <router-link v-if="isFlinkApp" :to="{name: 'flinkjobstatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
                                     <el-button type="primary">实例操作</el-button>
                                 </router-link>
                             </el-col>
@@ -413,6 +429,7 @@
                 this.$refs["create-flinkjob-group-form"].resetFields();
             },
             createFlinkGroup() {
+                console.log(this.newFlinkGroup);
                 this.$refs["create-flinkjob-group-form"].validate((valid) => {
                     if (valid) {
                         this.$confirm('发布镜像为<strong>' + this.newFlinkGroup.instanceImage.name + '</strong>，是否继续？', '提示', {
@@ -422,20 +439,15 @@
                             dangerouslyUseHTMLString: true
                         }).then(() => {
                             let data = {
-                                siteId: this.querySiteId,
                                 group: {
-                                    "id": null,
-                                    "siteId": this.querySiteId,
-                                    "appType": "SERVICE",
-                                    "releaseTargetId": this.newFlinkGroup.instanceImage.id,
-                                    "releaseTargetType": "IMAGE",
-                                    "instanceSpec": this.newFlinkGroup.instanceSpec,
+                                    "appName": this.siteInView.appName,
+                                    "env": this.siteInView.environment,
+                                    "appId": this.siteInView.appId,
+                                    "releaseTarget": this.newFlinkGroup.instanceImage.name,
+                                    "instanceSpec": this.newGroup.instanceSpec,
                                     "instanceCount": this.newFlinkGroup.instanceCount,
                                     "portCount": 8009,
-                                    "keepAlive": true,
-                                    "networkType": "MACVLAN",
-                                    "zone": this.newFlinkGroup.zone.toString(),
-                                    "cmd": this.newFlinkGroup.cmd,
+                                    "zones": this.siteInView.zones,
                                     "hadoopConfig": this.newFlinkGroup.hadoopConfig,
                                     "checkpoint" : this.newFlinkGroup.checkpoint
                                 }
@@ -491,7 +503,12 @@
                             appId: this.siteInView.appId,
                             groupId: group.id
                         };
-                        this.$store.dispatch('removeReleaseGroup', data);
+                        console.log(this.isFlinkApp);
+                        if(this.isFlinkApp) {
+                            this.$store.dispatch('removeReleaseFlinkGroup',data)
+                        } else {
+                            this.$store.dispatch('removeReleaseGroup', data);
+                        }
                     }).catch(() => {
                         this.$message({
                             type: 'info',

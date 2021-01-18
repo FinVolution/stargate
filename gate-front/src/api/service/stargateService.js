@@ -2,6 +2,35 @@ import restApi from '../restApi'
 
 export default {
 
+    createFlinkGroup(request = {}) {
+        let url = 'api/flink/groups/application';
+        return restApi.doPostRequest(url, request.group);
+    },
+    startFlinkJob(request = {}) {
+        let url = 'api/flink/groups/application/start-job';
+        return restApi.doPostRequest(url,request);
+    },
+
+    stopFlinkJob(request = {}) {
+        let url = 'api/flink/groups/application/cancel-job?groupId=' + request.groupId+'&destroy='+request.destroy;
+        return restApi.doPostRequest(url);
+    },
+    getGroupsBySiteId(request = {}) {
+        let url = 'api/groups?siteId=' + request.siteId;
+        return restApi.doGetRequest(url);
+    },
+    removeReleaseFlinkGroup(request = {}) {
+        let url = '/api/flink/groups/destroy/' + request.groupId;
+        return restApi.doPostRequest(url);
+    },
+    getFlinkJobGroupsBySiteId(request = {}) {
+        let url = 'api/flink/groups?siteId=' + request.siteId;
+        return restApi.doGetRequest(url);
+    },
+    getFlinkJobByGroupId(request = {}) {
+        let url = '/api/flink/groups/job?groupId=' + request.groupId;
+        return restApi.doGetRequest(url);
+    },
     getHadoopConfigsByEnv(request = {}) {
         if (request.department === null || request.department === undefined) {
             return restApi.doGetRequest( '/api/flink/hadoop/configs?env=' + request);
