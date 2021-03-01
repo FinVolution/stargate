@@ -28,6 +28,8 @@ import InstanceCount from '../pages/instancecount/index.vue'
 import AppManager from '../pages/appmanager/index.vue'
 import DnsList from '../pages/dnslist/index.vue'
 import SystemManagement from '../pages/systemmanagement/index.vue'
+import HadoopList from '../pages/hadooplist/index.vue'
+import FlinkJobStatus from '../pages/flinkjobstatus/index.vue'
 
 export default new Router({
     mode: 'hash', // mode option: 1. hash (default), 2. history
@@ -61,6 +63,10 @@ export default new Router({
             name: 'instancestatus',
             component: InstanceStatus
         }, {
+            path: 'flinkjobstatus',
+            name: 'flinkjobstatus',
+            component: FlinkJobStatus
+        }, {
             path: 'releasehistory',
             name: 'releasehistory',
             component: ReleaseHistory
@@ -86,6 +92,10 @@ export default new Router({
         name: 'system',
         component: SystemManagement,
         children: [{
+            path: 'hadoop',
+            name: 'hadoop',
+            component: HadoopList
+        }, {
             path: 'envs',
             name: 'envs',
             component: EnvList

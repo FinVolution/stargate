@@ -61,8 +61,8 @@ public class InstanceEntity extends BaseEntity {
     private Boolean hasPulledIn;
 
     @Basic
-    @Column(name = "flags")
-    private Long flags;
+    @Transient
+    private Long flags = 0L;
 
     @Basic
     @Column(name = "image")

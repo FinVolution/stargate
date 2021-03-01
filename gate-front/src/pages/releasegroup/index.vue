@@ -27,7 +27,8 @@
                 <div class="detail-box-right">{{siteInView.domain}}</div>
             </div>
 
-            <el-button type="primary" @click="onCreate" v-if="showGroup">新建发布组</el-button>
+            <el-button type="primary" @click="onCreate" v-if="!isFlinkApp">新建发布组</el-button>
+            <el-button type="primary" @click="onCreateFlink" v-if="isFlinkApp">新建FlinkJob</el-button>
         </el-row>
 
         <br/>
@@ -43,13 +44,26 @@
                             <el-form-item label="实例规格">
                                 <div class="release-group-item">{{group.instanceSpec}}</div>
                             </el-form-item>
-                            <el-form-item label="实例总数">
+<!--                            <el-form-item label="启动端口">-->
+<!--                                <div class="release-group-item">{{group.portCount}}</div>-->
+<!--                            </el-form-item>-->
+                            <el-form-item v-if="!isFlinkApp" label="实例总数">
                                 <div class="release-group-item">{{group.instanceCount}}</div>
                             </el-form-item>
-                            <el-form-item label="在线实例">
+                            <el-form-item v-if="isFlinkApp" label="任务总数">
+                                <div class="release-group-item">{{group.instanceCount}}</div>
+                            </el-form-item>
+                            <el-form-item  v-if="!isFlinkApp"  label="在线实例">
                                 <div class="release-group-item">{{group.activeCount}}</div>
                             </el-form-item>
-                            <el-form-item label="流量状态">
+                            <el-form-item v-if="isFlinkApp"  label="在线任务">
+                                <div class="release-group-item">{{group.activeCount}}</div>
+                            </el-form-item>
+                            <el-form-item v-if="!isFlinkApp" label="流量状态">
+                                <el-progress :text-inside="true" :stroke-width="40"
+                                             :percentage="group.instanceUpPercentage" status="success"></el-progress>
+                            </el-form-item>
+                            <el-form-item v-if="isFlinkApp" label="任务状态">
                                 <el-progress :text-inside="true" :stroke-width="40"
                                              :percentage="group.instanceUpPercentage" status="success"></el-progress>
                             </el-form-item>
@@ -57,7 +71,10 @@
 
                         <el-row :gutter="20">
                             <el-col :span="12">
-                                <router-link :to="{name: 'instancestatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
+                                <router-link v-if="!isFlinkApp" :to="{name: 'instancestatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
+                                    <el-button type="primary">实例操作</el-button>
+                                </router-link>
+                                <router-link v-if="isFlinkApp" :to="{name: 'flinkjobstatus', query: { env: group.environment, appId: group.appId, groupId: group.id }}">
                                     <el-button type="primary">实例操作</el-button>
                                 </router-link>
                             </el-col>
@@ -142,6 +159,48 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
+
+        <el-dialog :title="'新建FlinkJob发布组（' + siteInView.environment + '）'" :visible.sync="flinkDialogVisible" width="600px" :before-close="onCloseFlink">
+            <el-form label-width="80px" label-position="left" :model="newFlinkGroup" :rules="newFlinkJobGroupRules" ref="create-flinkjob-group-form">
+                <el-form-item label="应用镜像" prop="instanceImage">
+                    <el-select v-model="newFlinkGroup.instanceImage" filterable value-key="id" placeholder="请选择应用镜像" style="width: 100%">
+                        <el-option v-for="item in images" :key="item.id" :label="item.name"
+                                   :value="item">
+                            <span style="float: left">{{ item.name }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">{{ formatImageDeployAt(item.deployAt) }}</span>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="集群配置" prop="hadoopConfig">
+                    <el-select v-model="newFlinkGroup.hadoopConfig" filterable value-key="id" placeholder="请选择hadoop配置" style="width: 100%">
+                        <el-option v-for="item in hadoopConfigs" :key="item.id" :label="item.name"
+                                   :value="item.name">
+                            <span style="float: left">{{ item.name+' ('+item.description+')' }}</span>
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="发布规格" prop="instanceSpec">
+                    <el-select v-model="newGroup.instanceSpec" placeholder="请选择发布规格" @change="changeInstanceSpec" style="width: 100%">
+                        <el-option v-for="item in appQuotaStatus" :key="item.spectypeName" :value="item.spectypeName"
+                                   :label="item.spectypeName + '（可发实例数：' + item.freeCount + '）'"
+                                   v-if="item.freeCount > 0"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="任务个数" prop="instanceCount">
+                    <el-input v-model.number="newFlinkGroup.instanceCount" placeholder="请输入任务个数(默认槽数为1)"></el-input>
+                </el-form-item>
+                <el-form-item label="启动参数" prop="cmd">
+                    <el-input v-model.number="newFlinkGroup.cmd" placeholder="请输入启动参数"></el-input>
+                </el-form-item>
+                <el-form-item label="checkpoint" prop="checkpoint">
+                    <el-input v-model.number="newFlinkGroup.checkpoint" placeholder="请输入checkpoint地址"></el-input>
+                </el-form-item>
+                <el-form-item style="margin-bottom: 0">
+                    <el-button @click="onCloseFlink" style="float: right">关闭</el-button>
+                    <el-button type="primary" @click="createFlinkGroup()" style="float:right;margin:0 10px 0 0;">提交</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -176,11 +235,21 @@
                     instanceTarget: null,
                     zone: [],
                     staticResources: []
-                }
+                },
+                newFlinkGroup: {
+                    instanceSpec: null,
+                    instanceCount: null,
+                    instanceImage: null,
+                    cmd: null,
+                    hadoopConfig: null,
+                    checkpoint: null
+                },
             }
         },
         computed: {
             ...mapGetters({
+                hadoopConfigs: 'getHadoopConfigs',
+                myApps: 'getMyApps',
                 groups: 'getReleaseGroups',
                 images: 'getValuableImageList',
                 username: 'getUserName',
@@ -196,6 +265,12 @@
             },
             showGroup: function () {
                 return this.siteInView.environment && this.siteInView.appId;
+            },
+            isFlinkApp: function () {
+                if (this.myApps != null && this.myApps[0] != null) {
+                    let myApp = this.myApps[0];
+                    return myApp.appType == "FlinkJob";
+                }
             },
             newGroupRules: function () {
                 return {
@@ -256,6 +331,8 @@
             this.routeParam.appId = query && query.appId ? query.appId : null;
 
             this.$store.dispatch('fetchSiteByEnvAndAppId', {env: this.routeParam.env, appId: this.routeParam.appId});
+            this.$store.dispatch('fetchApp', {appId: this.routeParam.appId});
+
             this.refreshReleseGroups();
         },
         mounted: function () {
@@ -333,9 +410,55 @@
                 this.newGroup.zone = this.siteInView.zones;
                 this.dialogVisible = true;
             },
+            onCreateFlink() {
+                this.$store.dispatch('fetchValuableImageList', {env: this.siteInView.environment, appId: this.siteInView.appId, appName: this.siteInView.appName});
+                this.$store.dispatch('fetchAppQuotaStatus', {
+                    environment: this.siteInView.environment,
+                    appId: this.siteInView.appId
+                });
+                this.$store.dispatch('fetchHadoopConfigs', {env:this.siteInView.environment,department: this.myApps[0].departmentCode});
+                this.newFlinkGroup.zone = this.siteInView.zones;
+                this.flinkDialogVisible = true;
+            },
             onClose() {
                 this.dialogVisible = false;
                 this.$refs["create-group-form"].resetFields();
+            },
+            onCloseFlink() {
+                this.flinkDialogVisible = false;
+                this.$refs["create-flinkjob-group-form"].resetFields();
+            },
+            createFlinkGroup() {
+                console.log(this.newFlinkGroup);
+                this.$refs["create-flinkjob-group-form"].validate((valid) => {
+                    if (valid) {
+                        this.$confirm('发布镜像为<strong>' + this.newFlinkGroup.instanceImage.name + '</strong>，是否继续？', '提示', {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning',
+                            dangerouslyUseHTMLString: true
+                        }).then(() => {
+                            let data = {
+                                group: {
+                                    "appName": this.siteInView.appName,
+                                    "env": this.siteInView.environment,
+                                    "appId": this.siteInView.appId,
+                                    "releaseTarget": this.newFlinkGroup.instanceImage.name,
+                                    "instanceSpec": this.newGroup.instanceSpec,
+                                    "instanceCount": this.newFlinkGroup.instanceCount,
+                                    "portCount": 8009,
+                                    "zones": this.siteInView.zones,
+                                    "hadoopConfig": this.newFlinkGroup.hadoopConfig,
+                                    "checkpoint" : this.newFlinkGroup.checkpoint
+                                }
+                            };
+                            this.$store.dispatch('createFlinkGroup', data);
+                            this.onCloseFlink();
+                        });
+                    } else {
+                        return false;
+                    }
+                });
             },
             changeInstanceSpec() {
                 if (this.siteInView.enableStaticResource) {
@@ -380,7 +503,12 @@
                             appId: this.siteInView.appId,
                             groupId: group.id
                         };
-                        this.$store.dispatch('removeReleaseGroup', data);
+                        console.log(this.isFlinkApp);
+                        if(this.isFlinkApp) {
+                            this.$store.dispatch('removeReleaseFlinkGroup',data)
+                        } else {
+                            this.$store.dispatch('removeReleaseGroup', data);
+                        }
                     }).catch(() => {
                         this.$message({
                             type: 'info',
@@ -396,6 +524,14 @@
             },
             restartJob(group) {
                 this.$store.dispatch("restartJob", {jobId: group.jobInfo.id});
+            },
+            changeFlinkJobSpec() {
+                this.$store.dispatch('fetchAvailableResources', {
+                    appId: this.currentSite.appId,
+                    env: this.currentSite.environment,
+                    spec: this.newFlinkGroup.instanceSpec
+                });
+                this.newGroup.staticResources = [];
             }
         }
     }

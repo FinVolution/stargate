@@ -15,6 +15,10 @@ public enum JobTaskTypeEnum {
     ADD_HC_ONE("添加健康检查"),
     REMOVE_HC_ONE("删除健康检查"),
     NOOP("等待"),
+    RECOVER_FLINK_JOB("恢复Job"),
+    DEPLOY_FLINKJOB("部署FlinkJob"),
+    STOP_FLINKJOB("停止FlinkJob"),
+    DESTROY_FLINKJOB("销毁FlinkJob"),
     SYNC_INSTANCE_JOB("同步实例任务");
 
     String description;

@@ -23,8 +23,11 @@ const state = {
     releaseGroups: [],
     releaseGroupStatus: {
         latestJobInfo: {},
-        instanceList: []
+        instanceList: [],
+        flinkJobList: []
+
     },
+    flinkJobGroup: {},
     promptMessage: {
         code: null,
         details: null
@@ -35,6 +38,7 @@ const state = {
     releaseRecordCount: 0,
     releaseLog: {},
     containerLog: {},
+    flinkContainerLog: {},
     releaseStatus: [],
     appQuotas: [],
     appQuotaStatus: [],
@@ -59,7 +63,8 @@ const state = {
     appSetting: {},
     execCommandResult: {},
     dnsList: [],
-    dnsCount: 0
+    dnsCount: 0,
+    hadoopConfigs: []
 };
 
 // getters
@@ -78,6 +83,7 @@ const getters = {
     getImageList: state => state.imageList,
     getValuableImageList: state => state.valuableImageList,
     getImageCount: state => state.imageCount,
+    getHadoopConfigs: state => state.hadoopConfigs,
     getAuditLogList: state => state.auditLogList,
     getAuditLogCount: state => state.auditLogCount,
     getAppInstanceList: state => state.appInstanceList,
@@ -113,11 +119,116 @@ const getters = {
     getAppSetting: state => state.appSetting,
     getExecCommandResult: state => state.execCommandResult,
     getDnsList: state => state.dnsList,
-    getDnsCount: state => state.dnsCount
+    getDnsCount: state => state.dnsCount,
+    getReleaseFlinkJobs: state => state.releaseGroupStatus.flinkJobList,
+    getFlinkJobGroup: state => state.flinkJobGroup,
+    getFlinkContainerLog: state => state.flinkContainerLog,
+
 };
 
 // actions
 const actions = {
+
+    createFlinkGroup({dispatch}, data){
+        api.gateService.createFlinkGroup(data).then(function (resp) {
+            dispatch("fetchReleseGroupsByEnvAndAppId", {siteId: data.siteId});
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchReleaseGroup({commit, dispatch}, data) {
+        api.gateService.getFlinkJobByGroupId(data).then(function (resp) {
+            if (resp.data.code >= 0) {
+                commit(types.REFRESH_GROUP_INFO, resp.data.details);
+            }
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchFlinkJobByGroupId ({commit, dispatch}, data) {
+        api.gateService.getFlinkJobByGroupId(data).then(function (resp) {
+            if (resp.data.code >= 0 && Array.isArray(resp.data.details)) {
+                commit(types.REFRESH_GROUP_FLINKJOB_LIST, resp.data.details);
+            } else {
+                commit(types.REFRESH_GROUP_FLINKJOB_LIST, []);
+                dispatch("displayPromptByResponseMsg", resp);
+            }
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchFlinkJobReleseGroupsBySiteId({commit, dispatch}, data){
+        api.gateService.getFlinkJobGroupsBySiteId(data).then(function (resp) {
+            if (resp.data.code >= 0 && Array.isArray(resp.data.details)) {
+                commit(types.REFRESH_RELEASE_GROUP_LIST, resp.data.details);
+            } else {
+                commit(types.REFRESH_RELEASE_GROUP_LIST, []);
+            }
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchReleseGroupsBySiteId({commit, dispatch}, data){
+        api.gateService.getGroupsBySiteId(data).then(function (resp) {
+            if (resp.data.code >= 0 && Array.isArray(resp.data.details)) {
+                commit(types.REFRESH_RELEASE_GROUP_LIST, resp.data.details);
+            } else {
+                commit(types.REFRESH_RELEASE_GROUP_LIST, []);
+            }
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    removeReleaseFlinkGroup({dispatch}, data){
+        api.gateService.removeReleaseFlinkGroup(data).then(function (resp) {
+            dispatch("fetchReleseGroupsBySiteId", {siteId: data.siteId});
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            console.log(err);
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+
+    startFlinkJob({dispatch}, data){
+        api.gateService.startFlinkJob(data).then(function (resp) {
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    stopFlinkJob({dispatch}, data){
+        api.gateService.stopFlinkJob(data).then(function (resp) {
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    destroyFlinkJob({dispatch}, data){
+        api.gateService.destroyFlinkJob(data).then(function (resp) {
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    createHadoopConfig({dispatch}, data) {
+        api.gateService.createHadoopConfig(data.formData).then(function (resp) {
+            dispatch('fetchHadoopConfigs', data.env);
+            dispatch("displayPromptByResponseMsg", resp);
+        }.bind(this)).catch(function (err) {
+            dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
+    fetchHadoopConfigs({commit, dispatch}, data) {
+        api.gateService.getHadoopConfigsByEnv(data).then(function (resp) {
+            console.log(resp.data.details);
+            commit(types.REFRESH_HADOOPCONFIG_LIST, resp.data.details);
+        }.bind(this)).catch(function (err) {
+            console.log("error");
+            console.error(err);
+            // dispatch("displayPromptByResponseMsg", err.response);
+        }.bind(this));
+    },
 
     /**
      * 用户切换环境时，将状态保存到store和localStorage
@@ -950,6 +1061,12 @@ const mutations = {
     [types.REFRESH_GROUP_JOB_STATUS] (state, data){
         state.releaseGroupStatus.latestJobInfo = data;
     },
+    [types.REFRESH_GROUP_FLINKJOB_LIST] (state, data) {
+        state.releaseGroupStatus.flinkJobList = data;
+    },
+    [types.REFRESH_GROUP_INFO] (state, data) {
+        state.flinkJobGroup = data[0];
+    },
     [types.REFRESH_PROMPT_MESSAGE] (state, data){
         state.promptMessage = data;
     },
@@ -1045,6 +1162,9 @@ const mutations = {
     },
     [types.REFRESH_CLOUD_INSTANCE_STATUS] (state, data) {
         state.cloudInstanceStatus = data;
+    },
+    [types.REFRESH_HADOOPCONFIG_LIST] (state, data) {
+        state.hadoopConfigs = data;
     },
     [types.REFRESH_CLOUD_INSTANCE_LOG] (state, data) {
         state.cloudInstanceLog = data;

@@ -109,4 +109,24 @@ public class RemoteManager {
         log.info("<<getConsulClient>> 按环境获取consul信息: env={}, consul={}", env, envVO.getConsul());
         return new ConsulClient(envVO.getConsul(), consulHttpClient);
     }
+
+    public String getK8sMasterRpcUrl(String env, String zone) {
+        String rpc = "";
+        List<ZoneDto> zoneDtos = remoteCmdb.fetchZonesByEnv(env);
+        for (int i = 0; i < zoneDtos.size(); i++) {
+            ZoneDto zoneDto = zoneDtos.get(i);
+            if (zoneDto.getName().equals(zone)) {
+                String k8sUrl = zoneDto.getK8s();
+                log.info("<<getK8sClientByZone>> 按环境和部署区域获取K8s信息: env={}, zone={}, k8s={}", env, zone, k8sUrl);
+                Object extensions = zoneDto.getExtensions();
+                if (extensions instanceof Map) {
+                    Map<String, Object> k8sInfoMap = (Map) extensions;
+                    Object k8sRpcObj = k8sInfoMap.get("rpc");
+                    rpc = k8sRpcObj.toString();
+                }
+                break;
+            }
+        }
+        return rpc;
+    }
 }

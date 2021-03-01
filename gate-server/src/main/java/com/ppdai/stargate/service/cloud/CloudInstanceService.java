@@ -5,11 +5,15 @@ import com.ppdai.stargate.job.JobInfo;
 import com.ppdai.stargate.manager.TaskManager;
 import com.ppdai.stargate.po.ApplicationEntity;
 import com.ppdai.stargate.po.InstanceEntity;
-import com.ppdai.stargate.service.*;
+import com.ppdai.stargate.service.AppService;
+import com.ppdai.stargate.service.ContainerService;
+import com.ppdai.stargate.service.InstanceJobService;
+import com.ppdai.stargate.service.InstanceService;
 import com.ppdai.stargate.utils.ConvertUtil;
 import com.ppdai.stargate.vo.InstanceV2VO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +46,7 @@ public class CloudInstanceService {
 
     /**
      * 更新实例版本
+     *
      * @param request
      * @return
      */
@@ -85,6 +90,7 @@ public class CloudInstanceService {
 
     /**
      * 实例拉入流量
+     *
      * @param request
      * @return
      */
@@ -124,6 +130,7 @@ public class CloudInstanceService {
 
     /**
      * 实例拉出流量
+     *
      * @param request
      * @return
      */
@@ -158,6 +165,7 @@ public class CloudInstanceService {
 
     /**
      * 重启实例
+     *
      * @param request
      * @return
      */
@@ -193,11 +201,12 @@ public class CloudInstanceService {
 
     /**
      * 部署实例
+     *
      * @param request
      * @return
      */
-    public DeployInstanceResponse deploy( DeployInstanceRequest request){
-        try{
+    public DeployInstanceResponse deploy(DeployInstanceRequest request) {
+        try {
             if (StringUtils.isEmpty(request.getName())) {
                 return new DeployInstanceResponse(-1, "参数[name]为空");
             }
@@ -270,7 +279,80 @@ public class CloudInstanceService {
     }
 
     /**
+     * 部署实例
+     *
+     * @param request
+     * @return
+     */
+    public DeployInstanceResponse onlyAddInstance(DeployInstanceRequest request) {
+        try {
+            if (StringUtils.isEmpty(request.getName())) {
+                return new DeployInstanceResponse(-1, "参数[name]为空");
+            }
+            if (StringUtils.isEmpty(request.getEnv())) {
+                return new DeployInstanceResponse(-1, "参数[env]为空");
+            }
+            if (StringUtils.isEmpty(request.getAppId())) {
+                return new DeployInstanceResponse(-1, "参数[appId]为空");
+            }
+            if (request.getPort() == null) {
+                return new DeployInstanceResponse(-1, "参数[port]为空");
+            }
+            if (StringUtils.isEmpty(request.getSpec())) {
+                return new DeployInstanceResponse(-1, "参数[spec]为空");
+            }
+            if (StringUtils.isEmpty(request.getImage())) {
+                return new DeployInstanceResponse(-1, "参数[image]为空");
+            }
+            if (StringUtils.isEmpty(request.getEnvVars())) {
+                return new DeployInstanceResponse(-1, "参数[envVars]为空");
+            }
+
+            InstanceEntity instance = instanceService.findByNameEx(request.getName());
+            if (instance != null && instance.getIsActive()) {
+                return new DeployInstanceResponse(-1, "实例已存在, name=" + request.getName());
+            }
+
+            ApplicationEntity applicationEntity = appService.getAppByCmdbId(request.getAppId());
+            if (applicationEntity == null) {
+                return new DeployInstanceResponse(-1, "无法找到对应的应用, appId=" + request.getAppId());
+            }
+
+            if (instance == null) {
+                instance = new InstanceEntity();
+            }
+            instance.setName(request.getName());
+            instance.setEnv(request.getEnv());
+            instance.setGroupId(request.getGroupId());
+            instance.setAppId(request.getAppId());
+            instance.setPort(request.getPort());
+            instance.setImage(request.getImage());
+            instance.setEnvVars(request.getEnvVars());
+            instance.setZone(request.getZone());
+            instance.setSpec(request.getSpec());
+            instance.setHasPulledIn(false);
+            instance.setIsActive(true);
+            instance.setSlotIp(request.getIp());
+            if (StringUtils.isEmpty(request.getNamespace())) {
+                instance.setNamespace("default-" + applicationEntity.getDepartmentCode());
+            } else {
+                instance.setNamespace(request.getNamespace());
+            }
+            instance = instanceService.saveInstance(instance);
+            DeployInstanceResponse response = new DeployInstanceResponse(0, "success");
+            InstanceV2VO instanceV2VO = new InstanceV2VO();
+            BeanUtils.copyProperties(instance, instanceV2VO);
+            response.setInstance(instanceV2VO);
+            return response;
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return new DeployInstanceResponse(-1, ex.getMessage());
+        }
+    }
+
+    /**
      * 销毁实例
+     *
      * @param request
      * @return
      */
@@ -305,6 +387,7 @@ public class CloudInstanceService {
 
     /**
      * 查询实例
+     *
      * @param request
      * @return
      */
@@ -366,6 +449,7 @@ public class CloudInstanceService {
 
     /**
      * 根据IP查询实例
+     *
      * @param request
      * @return
      */
@@ -390,6 +474,7 @@ public class CloudInstanceService {
 
     /**
      * 查询实例日志
+     *
      * @param request
      * @return
      */

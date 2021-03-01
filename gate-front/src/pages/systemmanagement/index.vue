@@ -4,6 +4,7 @@
         <vsiderbar></vsiderbar>
         <el-menu :default-active="activeIndex" class="system-menu" mode="horizontal" router>
             <el-menu-item index="/system/envs">环境列表</el-menu-item>
+            <el-menu-item index="/system/hadoop">hadoop集群</el-menu-item>
             <el-menu-item index="/system/ips">IP列表</el-menu-item>
             <el-menu-item index="/system/resources">资源列表</el-menu-item>
             <el-menu-item index="/system/cloudinstance">私有云实例</el-menu-item>
